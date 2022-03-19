@@ -6,8 +6,10 @@
 # pip install modbus-tk
 # pip install pyserial
 
+from logging import exception
 import serial
 import modbus_tk.defines as cst
+import requests
 from modbus_tk import modbus_rtu
 import numpy as np
 
@@ -25,6 +27,7 @@ import traceback
 #======google試算表======
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from sympy import E
 
 scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json",scope)
@@ -36,6 +39,10 @@ sheet_device = sheet.get_worksheet(0)
 
 DEBUG_MODE = 1
 COM_PORT = 'COM6'
+
+api_url = "https://api.thingspeak.com/update?api_key=OR1ZY9CA8P126CKP&field1=0"
+
+
 
 if (not DEBUG_MODE):
     # Connect to the sensor
@@ -71,6 +78,10 @@ while(True):
             voltage,current = 110+np.random.normal(0,1),0.023+np.random.normal(0,0.01)
             power, energy, frequency, powerFactor, alarm = voltage*current, 1, 60, .7,1
 
+        data = {"field1":voltage,"field2":current,"field3":voltage*current}
+        req = requests.get(api_url,data= data)
+        # print(req.text)
+        
         print('Voltage [V]: ', voltage)
         print('Current [A]: ', current)
         print('Power [W]: ', power) # active power (V * I * power factor)
@@ -78,15 +89,17 @@ while(True):
         print('Frequency [Hz]: ', frequency)
         print('Power factor []: ', powerFactor)
         print('Alarm : ', alarm)
-        n = n + 1
+        
         sheet_device.update_cell(n, 1, str(voltage*current))
         sheet_device.update_cell(1, 2, str(n))
+        n = n + 1
         i+=1
 
     except KeyboardInterrupt:
+        print("KeyboardInterrupt")
         break
-    except:
-        print("data not available")
+    except Exception as e:
+        print(e.__class__)
 
 # Changing power alarm value to 100 W
 # master.execute(1, cst.WRITE_SINGLE_REGISTER, 1, output_value=100)
@@ -98,3 +111,4 @@ if(not DEBUG_MODE):
             sensor.close()
     except:
         pass
+    
