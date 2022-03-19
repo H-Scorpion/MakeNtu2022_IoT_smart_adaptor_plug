@@ -40,7 +40,7 @@ sheet_device = sheet.get_worksheet(0)
 DEBUG_MODE = 1
 COM_PORT = 'COM6'
 
-api_url = "https://api.thingspeak.com/update?api_key=OR1ZY9CA8P126CKP&field1=0"
+api_url = "https://api.thingspeak.com/update?api_key=OR1ZY9CA8P126CKP"
 
 
 
@@ -90,10 +90,12 @@ while(True):
         print('Power factor []: ', powerFactor)
         print('Alarm : ', alarm)
         
-        sheet_device.update_cell(n, 1, str(voltage*current))
-        sheet_device.update_cell(1, 2, str(n))
+        sheet_device.update_cell(n+1, 1, str(voltage*current))
+        sheet_device.update_cell(1, 2, str(n+1))
         n = n + 1
         i+=1
+        if(n==1001):
+            n = 1
 
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
