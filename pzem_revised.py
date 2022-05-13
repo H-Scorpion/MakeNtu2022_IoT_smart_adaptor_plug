@@ -27,7 +27,7 @@ import traceback
 #======google試算表======
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from sympy import E
+
 
 scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json",scope)
@@ -90,11 +90,14 @@ while(True):
         print('Power factor []: ', powerFactor)
         print('Alarm : ', alarm)
         
-        sheet_device.update_cell(n+1, 1, str(voltage*current))
+        sheet_device.update_cell(n+1, 4, str(voltage*current))
+        sheet_device.update_cell(n+1, 5, str(voltage))
+        sheet_device.update_cell(n+1, 6, str(current))
         sheet_device.update_cell(1, 2, str(n+1))
+        
         n = n + 1
         i+=1
-        if(n==1001):
+        if(n==1000):
             n = 1
 
     except KeyboardInterrupt:
